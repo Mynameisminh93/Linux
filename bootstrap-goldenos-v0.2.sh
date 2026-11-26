@@ -57,8 +57,11 @@ ENTRY(_start)
 SECTIONS
 {
     . = 0xffffffff80000000;
+    .limine_requests_start : { KEEP(*(.limine_requests_start)) }
     .text : ALIGN(4K) { *(.text .text.*) }
     .rodata : ALIGN(4K) { *(.rodata .rodata.*) }
+    .limine_requests : ALIGN(8) { KEEP(*(.limine_requests)) }
+    .limine_requests_end : { KEEP(*(.limine_requests_end)) }
     .data : ALIGN(4K) { *(.data .data.*) }
     .bss : ALIGN(4K) { *(COMMON) *(.bss .bss.*) }
 }
@@ -309,5 +312,29 @@ cat > "$ROOT/arch/README.md" <<'EOF'
 # Architecture status
 x86_64 is the first boot target. AArch64 and RISC-V 64 are planned ports, not bootable builds yet. Each needs architecture-specific boot, exception, paging, interrupt and driver code.
 EOF
+
+cat > "$ROOT/boot/README.md" <<'EOF'
+Limine ISO is intended for BIOS and UEFI boot. QEMU can supply virtual SeaBIOS or OVMF firmware. A physical machine still requires a hardware bootstrap/firmware path.
+EOF
+
+cat > "$ROOT/runtime/README.md" <<'EOF'
+Universal runtime roadmap: native ELF loader, Linux ABI compatibility and QEMU system/user emulation profiles. Foreign binaries still require compatible ABI, libraries and devices; universal compatibility is not possible.
+EOF
+
+cat > "$ROOT/security/README.md" <<'EOF'
+Defensive suite catalogue: Wireshark, Zeek, Suricata, YARA, osquery, Volatility 3, Ghidra and Nmap. These are external integrations, not bundled. Review each license and package before installation. Test only systems you own or are authorized to assess.
+EOF
+
+cat > "$ROOT/gui/README.md" <<'EOF'
+Native Rust rendering interface scaffold. Framebuffer discovery, compositor, input handling, window manager, Dock and desktop shell are future work.
+EOF
+
+cat > "$ROOT/docs/STATUS.md" <<'EOF'
+# v0.2 status
+Implemented starter: x86_64 kernel entry/serial log, Limine request markers, BIOS/UEFI ISO recipe, QEMU launch scripts, Hacking CLI prototype, file signature recognition, SHA-256, native GUI trait.
+Not yet implemented: framebuffer, memory manager, scheduler, Linux ABI, full PE/ELF loaders, NTFS/ext4 drivers, full desktop, ARM64/RISC-V boot ports and third-party security integrations.
+EOF
+
+chmod +x "$ROOT"/scripts/*.sh
 echo "GoldenOS v0.2 source tree created at: $ROOT"
 echo "This is a starter scaffold; ARM64/RISC-V, full GUI, Linux ABI and complete filesystem drivers remain future work."
