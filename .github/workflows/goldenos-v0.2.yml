@@ -24,7 +24,7 @@ jobs:
         run: bash bootstrap-goldenos-v0.2.sh GoldenOS
       - name: Build Hacking terminal
         working-directory: GoldenOS/hacking_terminal
-        run: cargo check
+        run: cargo check --target x86_64-unknown-linux-gnu
       - name: Build x86_64 kernel ISO
         working-directory: GoldenOS
         run: |
