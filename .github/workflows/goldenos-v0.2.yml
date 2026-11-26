@@ -1,0 +1,35 @@
+name: GoldenOS v0.2 validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang lld llvm nasm make git             qemu-system-x86 ovmf seabios xorriso mtools
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-none
+      - name: Generate source tree
+        run: bash bootstrap-goldenos-v0.2.sh GoldenOS
+      - name: Build Hacking terminal
+        working-directory: GoldenOS/hacking_terminal
+        run: cargo check
+      - name: Build x86_64 kernel ISO
+        working-directory: GoldenOS
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/build-x86_64.sh
+      - name: QEMU serial smoke test
+        working-directory: GoldenOS
+        run: ./scripts/test-qemu-x86_64.sh
